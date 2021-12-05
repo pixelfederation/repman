@@ -1,1 +1,1 @@
-# Repman Helm chart repository
+charts/repman/README.md

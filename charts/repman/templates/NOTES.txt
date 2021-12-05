@@ -1,0 +1,24 @@
+Application pods for {{ .Values.labels.project | default "Missing labels.project value" }} were deployed in version {{ .Values.appVersion }}.
+
+You can see application pods by using command
+
+kubectl get pods --namespace {{ .Release.Namespace }} -l app={{ template "name" . }}
+
+Application Service/ingress can be selected
+
+kubectl get svc --namespace {{ .Release.Namespace }} -l app={{ template "name" . }}
+kubectl get ingress --namespace {{ .Release.Namespace }} -l app={{ template "name" . }}
+
+Application endpoints are deployed
+
+Externally(User) visible endpoint:
+
+{{- if index .Values.ingress.external.annotations "external-dns.alpha.kubernetes.io/hostname" }}
+    https://{{- index .Values.ingress.external.annotations "external-dns.alpha.kubernetes.io/hostname" | trimSuffix "."}}
+{{- end }}
+
+Internally(Office/VPN) visible endpoint:
+
+{{- if index .Values.ingress.internal.annotations "external-dns.alpha.kubernetes.io/hostname" }}
+    https://{{- index .Values.ingress.internal.annotations "external-dns.alpha.kubernetes.io/hostname" | trimSuffix "."}}
+{{- end }}

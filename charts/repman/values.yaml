@@ -1,0 +1,83 @@
+appVersion: 1.3.4
+
+labels:
+  project: repman
+
+ingress:
+  internal:
+    enabled: false
+    appVersionUrl: true
+    annotations: {}
+    labels: {}
+  external:
+    enabled: false
+    appVersionUrl: true
+    annotations: {}
+    labels: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+rbac:
+  create: false
+
+PodDisruptionBudget:
+  enabled: true
+  maxUnavailable: 25%
+
+annotations: {}
+
+podAnnotations:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+
+imagePullSecret: []
+
+revisionHistoryLimit: 10
+minReadySeconds: 30
+terminationGracePeriodSeconds: 60
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: "25%"
+    maxSurge: "25%"
+
+dnsPolicy: ClusterFirst
+dnsConfig: {}
+
+serviceAccountName: {}
+
+containers:
+  api:
+    repository: buddy/repman
+    pullPolicy: Always
+    containerPort: 9000
+    env:
+      PHP_MAX_CHILDREN: "20"
+      PHP_START_SERVERS: "2"
+      PHP_MIN_SPARE_SERVERS: "1"
+      PHP_MAX_SPARE_SERVERS: "3"
+      PHP_MAX_REQUESTS: "500"
+    startupProbe:
+      periodSeconds: 5
+      timeoutSeconds: 30
+      failureThreshold: 10
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "300m"
+  nginx:
+    repository: nginx
+    tag: 1.20.2
+    pullPolicy: Always
+    containerPort: 80
+    env: {}
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "40m"
+
+jobs: []
+
+addons: []

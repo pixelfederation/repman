@@ -1,0 +1,14 @@
+
+{{- $dot := . }}
+
+{{- range $k, $v := .Values.ingress }}
+
+{{- if $v.enabled }}
+
+{{- /* Inside loop . scope is different so we need to save it to $dot before we start looping. */}}
+{{- $conf := dict "type" $k "port" $dot.Values.service.port "Values" $dot.Values "Chart" $dot.Chart "Release" $dot.Release "ingress" $v }}
+{{ include "ingress_template" $conf }}
+
+{{- end }}
+
+{{- end }}

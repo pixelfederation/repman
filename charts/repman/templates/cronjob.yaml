@@ -1,0 +1,90 @@
+{{- $appVersion := .Values.appVersion }}
+{{- $dot := . }}
+
+{{- range $job := .Values.jobs }}
+{{- if $job.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ $dot.Release.Name }}-{{ $dot.Chart.Name }}-{{ $job.name }}"
+  labels:
+    app: {{ $dot.Chart.Name }}
+    chart: {{ template "chart" $dot }}
+    release: "{{ $dot.Release.Name }}"
+    heritage: "{{ $dot.Release.Service }}"
+    appVersion: "{{ $dot.Values.appVersion }}"
+    {{- include "toYamlQuote" $dot.Values.labels | indent 4 }}
+spec:
+  suspend: {{ $job.suspend }}
+  concurrencyPolicy: {{ $job.concurrencyPolicy }}
+  failedJobsHistoryLimit: {{ $job.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            cron: {{ $job.name }}
+          {{- with $job.podAnnotations }}
+
+          annotations:
+            {{- include "toYamlQuote" . | indent 12 }}
+          {{- end }}
+        spec:
+          containers:
+          - image: {{ $job.image.repository }}:{{ $appVersion }}
+            imagePullPolicy: {{ $job.image.pullPolicy }}
+            name: {{ $job.name }}
+            env:
+              {{- if $dot.Values.containers.api.env }}
+                {{- range $key, $val := $dot.Values.containers.api.env }}
+              - name: {{ $key }}
+                value: {{ $val | quote }}
+                {{- end}}
+              {{- end}}
+              {{- if .extraEnv }}
+                {{- range $key, $val := .extraEnv }}
+              - name: {{ $key }}
+                value: {{ $val | quote }}
+                {{- end}}
+              {{- end}}
+            {{- if $job.command }}
+            command: {{ $job.command }}
+            {{- end }}
+            {{- with $job.args }}
+            args: {{ $job.args }}
+            {{- end }}
+            volumeMounts:
+              - name: {{ template "fullname" $dot }}-conf
+                mountPath: /app/config/packages/prod/monolog.yaml
+                subPath: monolog.yaml
+          volumes:
+            - name: {{ template "fullname" $dot }}-conf
+              configMap:
+                name: {{ template "fullname" $dot }}-conf
+                items:
+                  - key: monolog.yaml
+                    path: monolog.yaml
+          restartPolicy: {{ $job.restartPolicy }}
+          {{- if $job.nodeSelector }}
+          nodeSelector:
+            {{- toYaml $job.nodeSelector | trim | nindent 12 }}
+          {{- end }}
+          {{- if $job.tolerations }}
+          tolerations:
+            {{- toYaml $job.tolerations | trim | nindent 12 }}
+          {{- end }}
+        {{- with $dot.Values.serviceAccountName }}
+          serviceAccountName: {{ . | quote }}
+        {{- end }}
+        {{- with $dot.Values.dnsPolicy }}
+          dnsPolicy: {{ . | quote }}
+        {{- end }}
+        {{- with $dot.Values.dnsConfig }}
+          dnsConfig:
+        {{- toYaml . | trim | nindent 12 }}
+        {{- end }}
+  schedule: {{ $job.schedule | quote }}
+  successfulJobsHistoryLimit: {{ $job.successfulJobsHistoryLimit }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,160 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ template "chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    appVersion: "{{ .Values.appVersion }}"
+    {{ include "toYamlQuote" .Values.labels | indent 4 }}
+  annotations:
+    {{ include "toYamlQuote" .Values.annotations | indent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  minReadySeconds: {{ .Values.minReadySeconds }}
+  {{- if .Values.strategy }}
+  {{- if eq (.Values.strategy.type | lower) "recreate" }}
+  strategy:
+    type: Recreate
+  {{- else if eq (.Values.strategy.type | lower) "rollingupdate" }}
+  strategy:
+    type: RollingUpdate
+    {{- if or .Values.strategy.rollingUpdate.maxUnavailable .Values.strategy.rollingUpdate.maxSurge }}
+    rollingUpdate:
+      {{- if .Values.strategy.rollingUpdate.maxSurge }}
+      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
+      {{- end }}
+      {{- if .Values.strategy.rollingUpdate.maxUnavailable }}
+      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
+      {{- end }}
+    {{- end}}
+  {{- end }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+      {{- with .Values.labels }}
+        {{- include "toYamlQuote" . | indent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        chart: {{ template "chart" . }}
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+        appVersion: "{{ .Values.appVersion }}"
+        {{ include "toYamlQuote" .Values.labels | indent 8 }}
+      annotations:
+        {{- with .Values.podAnnotations }}
+          {{- include "toYamlQuote" . | indent 8 }}
+        {{- end }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: topology.kubernetes.io/zone
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      containers:
+        - name: api
+          image: "{{ required "API repository address is required" .Values.containers.api.repository }}:{{ .Values.appVersion }}"
+          imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containers.api.containerPort }}
+              protocol: TCP
+              name: api
+          startupProbe:
+            exec:
+              command:
+              - /bin/bash
+              - '-c'
+              - cp -r /app/public /app-dir && chmod -R a+w /app/var
+            periodSeconds: {{ .Values.containers.api.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.containers.api.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.containers.api.startupProbe.failureThreshold }}
+          resources:
+            {{ include "toYamlQuote" .Values.containers.api.resources | indent 12 }}
+          volumeMounts:
+            - name: app-dir
+              mountPath: /app-dir
+            - name: {{ template "fullname" . }}-conf
+              mountPath: /usr/local/etc/php-fpm.d/www.conf
+              subPath: www.conf
+            - name: {{ template "fullname" . }}-conf
+              mountPath: /app/config/packages/prod/monolog.yaml
+              subPath: monolog.yaml
+          env:
+            {{- if .Values.containers.api.env }}
+              {{- range $key, $val := .Values.containers.api.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+              {{- end}}
+            {{- end}}
+        - name: nginx
+          image: "{{ .Values.containers.nginx.repository }}:{{ .Values.containers.nginx.tag }}"
+          imagePullPolicy: {{ .Values.containers.nginx.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containers.nginx.containerPort }}
+              protocol: TCP
+              name: nginx
+          env:
+            {{- if .Values.containers.nginx.env }}
+              {{- range $key, $val := .Values.containers.nginx.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+              {{- end}}
+            {{- end}}
+          resources:
+            {{- include "toYaml" .Values.containers.nginx.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx", "-s", "quit"]
+          volumeMounts:
+            - name: app-dir
+              mountPath: /app
+            - name: {{ template "fullname" . }}-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: app-dir
+          emptyDir: {}
+        - name: {{ template "fullname" . }}-conf
+          configMap:
+            name: {{ template "fullname" . }}-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+              - key: monolog.yaml
+                path: monolog.yaml
+              - key: www.conf
+                path: www.conf
+      {{- if .Values.serviceAccountName }}
+      dnsPolicy: {{ .Values.serviceAccountName | quote }}
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy | quote }}
+      {{- end }}
+      {{- if .Values.dnsConfig }}
+      dnsConfig:
+        {{ toYaml .Values.dnsConfig | trim | nindent 8 }}
+      {{- end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | trim | nindent 8 }}
+    {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | trim | nindent 8 }}
+      {{- end }}
+    {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+        {{ toYaml .Values.imagePullSecret | trim | nindent 8 }}
+    {{- end }}

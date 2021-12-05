@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ template "chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    appVersion: "{{ .Values.appVersion }}"
+    {{- include "toYamlQuote" .Values.labels | indent 4 }}
+  {{- if or .Values.service.annotations .Values.annotations }}
+  annotations:
+    {{- include "toYamlQuote" .Values.service.annotations | indent 4 }}
+    {{- include "toYamlQuote" .Values.annotations | indent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- if .Values.service.ports }}
+    {{- with .Values.service.ports }}
+      {{ toYaml . | nindent 4 }}
+    {{- end }}
+    {{- else }}
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetport | default "nginx" }}
+    {{- end }}
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
+    appVersion: "{{ .Values.appVersion }}"
+    {{- include "toYamlQuote" .Values.labels | indent 4 }}

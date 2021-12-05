@@ -1,0 +1,116 @@
+{{- $appVersion := .Values.appVersion }}
+{{- $dot := . }}
+
+{{- range $addon := .Values.addons }}
+{{- if $addon.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $dot.Release.Name }}-{{ $dot.Chart.Name }}-{{ $addon.name }}
+  labels:
+    app: {{ template "name" $dot }}-{{ $addon.name }}
+    chart: {{ template "chart" $dot }}
+    release: "{{ $dot.Release.Name }}"
+    heritage: "{{ $dot.Release.Service }}"
+    appVersion: "{{ $appVersion }}-{{ $addon.name }}"
+    {{- include "toYamlQuote" $dot.Values.labels | indent 4 }}
+spec:
+  replicas: {{ default 0 $addon.replicas }}
+  revisionHistoryLimit: {{ $dot.Values.revisionHistoryLimit }}
+  minReadySeconds: {{ $dot.Values.minReadySeconds }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ template "name" $dot }}-{{ $addon.name }}
+      release: {{ $dot.Release.Name }}
+      {{- if $dot.Values.labels }}
+      {{- toYaml $dot.Values.labels | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" $dot }}-{{ $addon.name }}
+        chart: {{ template "chart" $dot }}
+        release: "{{ $dot.Release.Name }}"
+        heritage: "{{ $dot.Release.Service }}"
+        appVersion: "{{ $appVersion }}-{{ $addon.name }}"
+        {{- include "toYamlQuote" $dot.Values.labels | indent 8 }}
+{{- with $addon.podAnnotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: topology.kubernetes.io/zone
+      terminationGracePeriodSeconds: {{ $addon.terminationGracePeriodSeconds }}
+      containers:
+      {{- with $addon.containers.api }}
+      {{- if .enabled }}
+        - name: api-{{ $addon.name }}
+          image: "{{ required "Repository address is required" $dot.Values.containers.api.repository }}:{{ $appVersion }}"
+          {{- with $addon }}
+          imagePullPolicy: {{ $addon.containers.api.pullPolicy }}
+          {{- with $addon.containers.api.command }}
+          args:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          resources:
+            {{- include "toYamlQuote" $addon.containers.api.resources | indent 12 }}
+          volumeMounts:
+            - name: {{ template "fullname" $dot }}-conf
+              mountPath: /app/config/packages/prod/monolog.yaml
+              subPath: monolog.yaml
+          lifecycle:
+            preStop:
+              exec:
+                # SIGTERM triggers a quick exit; gracefully terminate instead
+                command: {{ $addon.containers.api.stopCommand }}
+          env:
+            {{- if $dot.Values.containers.api.env }}
+              {{- range $key, $val := $dot.Values.containers.api.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+              {{- end}}
+            {{- end}}
+            {{- end}}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+      volumes:
+        - name: {{ template "fullname" $dot }}-conf
+          configMap:
+            name: {{ template "fullname" $dot }}-conf
+            items:
+              - key: monolog.yaml
+                path: monolog.yaml
+      {{- if $dot.Values.serviceAccountName }}
+      serviceAccountName: {{ $dot.Values.serviceAccountName | quote }}
+      {{- end }}
+      {{- if $dot.Values.dnsPolicy }}
+      dnsPolicy: {{ $dot.Values.dnsPolicy | quote }}
+      {{- end }}
+      {{- if $dot.Values.dnsConfig }}
+      dnsConfig: {{ toYaml $dot.Values.dnsConfig | nindent 8 }}
+      {{- end }}
+      {{- if $addon.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $addon.nodeSelector | trim | nindent 8 }}
+      {{- end }}
+      {{- if $addon.tolerations }}
+      tolerations:
+        {{- toYaml $addon.tolerations | trim | nindent 8 }}
+      {{- end }}
+      {{- if $addon.affinity }}
+      affinity:
+        {{- toYaml $addon.affinity | trim | nindent 8 }}
+      {{- end }}
+      {{- if $dot.Values.imagePullSecret }}
+      imagePullSecrets: {{ toYaml $dot.Values.imagePullSecret | nindent 8 }}
+      {{- end }}
+{{- end }}

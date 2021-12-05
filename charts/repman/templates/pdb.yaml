@@ -1,0 +1,23 @@
+---
+{{- if .Values.PodDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ template "chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    appVersion: "{{ .Values.appVersion }}"
+    {{- include "toYamlQuote" .Values.labels | indent 4 }}
+spec:
+  maxUnavailable: {{ .Values.PodDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+      {{- if .Values.labels }}
+        {{- include "toYamlQuote" .Values.labels | indent 6 }}
+      {{- end }}
+{{- end }}
