@@ -49,3 +49,15 @@ Alternatively, a YAML file that specifies the values for the above parameters ca
 ```console
 $ helm install repman pixelfederation/repman -f values.yaml
 ```
+
+Store Sessions in a PostgreSQL:
+
+```
+CREATE TABLE sessions (
+    sess_id VARCHAR(128) NOT NULL PRIMARY KEY,
+    sess_data BYTEA NOT NULL,
+    sess_lifetime INTEGER NOT NULL,
+    sess_time INTEGER NOT NULL
+);
+CREATE INDEX sessions_sess_lifetime_idx ON sessions (sess_lifetime);
+```

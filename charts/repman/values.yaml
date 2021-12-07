@@ -22,6 +22,14 @@ service:
 rbac:
   create: false
 
+hpa:
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 75
+  annotations: {}
+  additionalMetrics: []
+
 PodDisruptionBudget:
   enabled: true
   maxUnavailable: 25%
@@ -47,6 +55,10 @@ dnsPolicy: ClusterFirst
 dnsConfig: {}
 
 serviceAccountName: {}
+
+# Sessions in Relational Database
+PdoSessionHandler:
+  enabled: "false"
 
 containers:
   api:

@@ -108,6 +108,14 @@ data:
             class: Monolog\Formatter\LineFormatter
             arguments:
                 - "[%%datetime%%] \"%%message%%\" %%context.messageClass%% %%context.memoryBefore%% %%context.memoryAfter%% %%context.memoryDelta%% %%context.consumeTime%%\n"
+  override.yaml: |
+    services:
+        Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+            arguments:
+                - '%env(DATABASE_URL)%'
+    framework:
+        session:
+            handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
   www.conf: |
     ; Start a new pool named 'www'.
     ; the variable $pool can be used in any directive and will be replaced by the
