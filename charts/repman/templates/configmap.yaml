@@ -108,7 +108,7 @@ data:
             class: Monolog\Formatter\LineFormatter
             arguments:
                 - "[%%datetime%%] \"%%message%%\" %%context.messageClass%% %%context.memoryBefore%% %%context.memoryAfter%% %%context.memoryDelta%% %%context.consumeTime%%\n"
-  override.yml: |
+  override.yaml: |
     services:
         Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
             arguments:
