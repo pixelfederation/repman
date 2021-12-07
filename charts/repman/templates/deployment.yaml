@@ -90,6 +90,11 @@ spec:
             - name: {{ template "fullname" . }}-conf
               mountPath: /app/config/packages/prod/monolog.yaml
               subPath: monolog.yaml
+            {{- if eq .Values.PdoSessionHandler.enabled "true" }}              
+            - name: {{ template "fullname" . }}-conf
+              mountPath: /app/config/packages/prod/override.yaml
+              subPath: override.yaml
+            {{- end}}
           env:
             {{- if .Values.containers.api.env }}
               {{- range $key, $val := .Values.containers.api.env }}
@@ -134,6 +139,8 @@ spec:
                 path: nginx.conf
               - key: monolog.yaml
                 path: monolog.yaml
+              - key: override.yaml
+                path: override.yaml
               - key: www.conf
                 path: www.conf
       {{- if .Values.serviceAccountName }}

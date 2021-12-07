@@ -1,3 +1,8 @@
+## [1.0.3]
+### Changed
+- Add shared session,
+- Add hpa
+
 ## [1.0.0]
 ### Changed
 - Initial version of repman chart
