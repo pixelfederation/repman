@@ -16,6 +16,12 @@ $ helm repo add repman https://pixelfederation.github.io/repman
 $ helm --namespace=repman install repman pixelfederation/repman
 ```
 
+Exec to pod and run:
+```
+kubectl exec -ti POD_NAME bash -c api
+bin/console d:m:m --no-interaction && bin/console messenger:setup-transports --no-interaction && bin/console repman:security:update-db && bin/console assets:install && php-fpm
+```
+
 ## Uninstalling the Chart
 
 To uninstall/delete the `repman` deployment:
