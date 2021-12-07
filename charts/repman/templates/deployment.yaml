@@ -137,7 +137,7 @@ spec:
               - key: www.conf
                 path: www.conf
       {{- if .Values.serviceAccountName }}
-      dnsPolicy: {{ .Values.serviceAccountName | quote }}
+      serviceAccountName: {{ .Values.serviceAccountName | quote }}
       {{- end }}
       {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy | quote }}
