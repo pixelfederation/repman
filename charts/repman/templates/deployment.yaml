@@ -51,6 +51,7 @@ spec:
         appVersion: "{{ .Values.appVersion }}"
         {{ include "toYamlQuote" .Values.labels | indent 8 }}
       annotations:
+        checksum/config:  {{ include (print .Template.BasePath "/fluentbit-config.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- include "toYamlQuote" . | indent 8 }}
         {{- end }}
@@ -128,9 +129,37 @@ spec:
             - name: {{ template "fullname" . }}-conf
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+        - name: fluentbit
+          image: "{{ required "Fluentbit repository address is required" .Values.containers.fluentbit.repository }}:{{ .Values.containers.fluentbit.repositoryTag }}"
+          imagePullPolicy: {{ .Values.containers.fluentbit.pullPolicy }}
+          env:
+            {{- with .Values.containers.fluentbit.env }}
+              {{- include "envToList" . | indent 12 }}
+            {{- end}}
+          resources:
+            {{- include "toYamlQuote" .Values.containers.fluentbit.resources | indent 12 }}
+          volumeMounts:
+            - name: nginx-log
+              mountPath: /mnt/nginx
+            - name: php-log
+              mountPath: /mnt/php
+            - name: fluentbit-config-volume
+              mountPath: /fluent-bit/etc/fluent-bit.conf
+              subPath: fluent-bit.conf
+            - name: fluentbit-config-volume
+              mountPath: /fluent-bit/etc/custom_parsers.conf
+              subPath: custom_parsers.conf
       volumes:
         - name: app-dir
           emptyDir: {}
+        - name: fluentbit-config-volume
+          configMap:
+            name: fluentbit-config-{{ template "fullname" . }}
+            items:
+            - key: fluent-bit.conf
+              path: fluent-bit.conf
+            - key: custom_parsers.conf
+              path: custom_parsers.conf
         - name: {{ template "fullname" . }}-conf
           configMap:
             name: {{ template "fullname" . }}-conf
