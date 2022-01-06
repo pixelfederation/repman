@@ -1,3 +1,7 @@
+## [1.0.4]
+### Changed
+- Add fluentbit
+
 ## [1.0.3]
 ### Changed
 - Add shared session,

@@ -89,6 +89,21 @@ containers:
       requests:
         memory: "16Mi"
         cpu: "40m"
+  fluentbit:
+    repository: fluent/fluent-bit
+    repositoryTag: 1.8.11
+    pullPolicy: Always
+    env: {}
+    resources:
+      requests:
+        memory: "25Mi"
+        cpu: "100m"
+    config:
+      elasticsearch_host: elasticsearch
+      elasticsearch_port: 9200
+    parsers: |-
+    inputs: |-
+    filters: |-
 
 jobs: []
 

@@ -82,7 +82,7 @@ data:
                 excluded_http_codes: [404, 405]
             nested:
                 type: stream
-                path:  "php://stderr"
+                path:  /var/log/php/www-error.log
                 level: debug
             console:
                 type: console
@@ -90,7 +90,7 @@ data:
                 channels: ["!event", "!doctrine"]
             deprecation:
                 type: stream
-                path:  "php://stderr"
+                path:  /var/log/php/www-error.log
             deprecation_filter:
                 type: filter
                 handler: deprecation
@@ -98,7 +98,7 @@ data:
                 channels: ["php"]
             consumer:
                 type: stream
-                path:  "php://stderr"
+                path:  /var/log/php/www-error.log
                 level: info
                 channels: ["consumer"]
                 formatter: monolog.formatter.message_consumer

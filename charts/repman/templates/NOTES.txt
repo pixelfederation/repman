@@ -1,3 +1,7 @@
+_  _ _
+|_)|_|_)|\/| /\ |\ |
+| \|_|  |  |/--\| \|
+
 Application pods for {{ .Values.labels.project | default "Missing labels.project value" }} were deployed in version {{ .Values.appVersion }}.
 
 You can see application pods by using command
