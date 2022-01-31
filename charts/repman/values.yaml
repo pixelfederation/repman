@@ -65,6 +65,7 @@ containers:
     repository: buddy/repman
     pullPolicy: Always
     containerPort: 9000
+    # secret: ""      
     env:
       PHP_MAX_CHILDREN: "20"
       PHP_START_SERVERS: "2"
