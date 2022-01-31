@@ -60,6 +60,9 @@ serviceAccountName: {}
 PdoSessionHandler:
   enabled: "false"
 
+# read DATABASE_URL from kubernetes secret 
+secret: false
+
 containers:
   api:
     repository: buddy/repman

@@ -105,6 +105,13 @@ spec:
               value: {{ $val | quote }}
               {{- end}}
             {{- end}}
+            {{- if .Values.secret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "name" . }}-secret
+                  key: DATABASE_URL
+            {{- end }}
         - name: nginx
           image: "{{ .Values.containers.nginx.repository }}:{{ .Values.containers.nginx.tag }}"
           imagePullPolicy: {{ .Values.containers.nginx.pullPolicy }}
