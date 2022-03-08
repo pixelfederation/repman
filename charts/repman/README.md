@@ -2,6 +2,8 @@
 
 [Repman](https://repman.io/) is Private PHP Package Repository Manager
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/repman-helmchart)](https://artifacthub.io/packages/search?repo=repman-helmchart)
+
 
 ## Prerequisites
 
