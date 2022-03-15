@@ -1,3 +1,7 @@
+## [1.0.6]
+### Changed
+- Update repman, nginx to latest versions
+
 ## [1.0.5]
 ### Changed
 - Database credentials from secret
