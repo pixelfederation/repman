@@ -60,7 +60,7 @@ serviceAccountName: {}
 PdoSessionHandler:
   enabled: "false"
 
-# read DATABASE_URL from kubernetes secret 
+# read DATABASE_URL from kubernetes secret
 secret: false
 
 containers:
@@ -93,6 +93,7 @@ containers:
         memory: "16Mi"
         cpu: "40m"
   fluentbit:
+    enabled: true
     repository: fluent/fluent-bit
     repositoryTag: 1.8.11
     pullPolicy: Always

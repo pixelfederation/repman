@@ -1,3 +1,4 @@
+{{- if .Values.containers.fluentbit.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -82,3 +83,5 @@ data:
 
   custom_parsers.conf: |-
     {{- .Values.containers.fluentbit.parsers | nindent 4}}
+
+{{- end }}

@@ -1,3 +1,7 @@
+## [1.0.8]
+### Changed
+- Add fluentbit enabled option true/false
+
 ## [1.0.7]
 ### Changed
 - Deprecated "autoscaling/v2beta2" to "autoscaling/v2"
