@@ -1,3 +1,7 @@
+## [1.0.7]
+### Changed
+- Deprecated "autoscaling/v2beta2" to "autoscaling/v2"
+
 ## [1.0.6]
 ### Changed
 - Update repman, nginx to latest versions
