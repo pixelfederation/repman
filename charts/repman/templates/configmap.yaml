@@ -8,6 +8,7 @@ data:
     worker_processes auto;
     worker_rlimit_nofile 65535;
     pid /var/run/nginx.pid;
+    error_log /dev/stdout info;
 
     events {
       worker_connections 4096;
@@ -22,9 +23,6 @@ data:
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-
-      # error_log /var/log/nginx/repman_error.log;
-      # access_log /var/log/nginx/repman_access.log main;
 
       server_tokens off;
       sendfile on;
@@ -69,6 +67,8 @@ data:
               include fastcgi_params;
               internal;
           }
+
+          access_log /dev/stdout;
       }
     }
   monolog.yaml: |
