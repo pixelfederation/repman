@@ -1,3 +1,7 @@
+## [1.0.9]
+### Changed
+- Logs to stdout, nginx server config set to catch-all
+
 ## [1.0.8]
 ### Changed
 - Add fluentbit enabled option true/false
