@@ -47,9 +47,9 @@ data:
       reset_timedout_connection on;
 
       server {
-          listen       80;
+          listen       80 default_server;
           root         /app/public;
-          server_name  {{ .Values.containers.api.env.APP_HOST }};
+          server_name  _;
           index        index.php;
 
           add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
