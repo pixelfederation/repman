@@ -1,3 +1,7 @@
+## [1.0.10]
+### Changed
+- Change cronjob command template
+
 ## [1.0.9]
 ### Changed
 - Logs to stdout, nginx server config set to catch-all
