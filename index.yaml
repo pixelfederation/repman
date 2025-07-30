@@ -3,6 +3,22 @@ entries:
   repman:
   - apiVersion: v2
     appVersion: 1.4.0
+    created: "2025-07-30T13:02:00.824747805Z"
+    description: A Helm chart for Kubernetes
+    digest: 23769df363b6a42dd418ff358dbcbdcd804081813408540b8fea571dd508872b
+    home: https://repman.io
+    keywords:
+    - repman
+    - pixelfederation
+    maintainers:
+    - email: mrafaj@pixelfederation.com
+      name: Milan Rafaj
+    name: repman
+    urls:
+    - https://github.com/pixelfederation/repman/releases/download/repman-1.0.10/repman-1.0.10.tgz
+    version: 1.0.10
+  - apiVersion: v2
+    appVersion: 1.4.0
     created: "2024-01-04T13:18:29.972516277Z"
     description: A Helm chart for Kubernetes
     digest: c5fec4217b4f5e1b48fab09af4cdb05524e77859e4f7dba863329354e117680c
@@ -154,4 +170,4 @@ entries:
     urls:
     - https://github.com/pixelfederation/repman/releases/download/repman-1.0.0/repman-1.0.0.tgz
     version: 1.0.0
-generated: "2024-01-04T13:18:29.972554227Z"
+generated: "2025-07-30T13:02:00.82479841Z"
