@@ -1,3 +1,7 @@
+## [1.0.11]
+### Changed
+- Added cronjob ttlSecondsAfterFinished
+
 ## [1.0.10]
 ### Changed
 - Change cronjob command template
