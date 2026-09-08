@@ -64,6 +64,8 @@ data:
               fastcgi_pass 127.0.0.1:9000;
               fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
               fastcgi_param DOCUMENT_ROOT $realpath_root;
+              fastcgi_param HTTPS on;
+              fastcgi_param SERVER_PORT 443;
               include fastcgi_params;
               internal;
           }
