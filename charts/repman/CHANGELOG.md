@@ -1,3 +1,11 @@
+## [1.0.13]
+### Changed
+- Add MAILER_DSN to env variables fetched from secret
+
+## [1.0.12]
+### Changed
+- Add HTTPS and SERVER_PORT parameters to configmap
+
 ## [1.0.11]
 ### Changed
 - Added cronjob ttlSecondsAfterFinished

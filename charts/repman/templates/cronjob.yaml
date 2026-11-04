@@ -54,6 +54,11 @@ spec:
                   secretKeyRef:
                     name: {{ template "name" $dot  }}-secret
                     key: DATABASE_URL
+              - name: MAILER_DSN
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ template "name" $dot  }}-secret
+                    key: MAILER_DSN
               {{- end }}
             {{- with $job.command }}
             command:
