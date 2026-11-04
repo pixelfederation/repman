@@ -1,3 +1,7 @@
+## [1.0.14]
+### Fixed
+- Set HTTPS and SERVER_PORT fastcgi params after include fastcgi_params so SERVER_PORT is not overridden to 80
+
 ## [1.0.13]
 ### Changed
 - Add MAILER_DSN to env variables fetched from secret
